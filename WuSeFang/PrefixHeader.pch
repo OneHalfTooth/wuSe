@@ -1,0 +1,28 @@
+//
+//  PrefixHeader.pch
+//  WuSeFang
+//
+//  Created by 马扬 on 16/8/26.
+//  Copyright © 2016年 马扬. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+#import "API.h"
+#import "DefineTool.h"
+#import <MBProgressHUD/MBProgressHUD.h>
+#import <SVProgressHUD/SVProgressHUD.h>
+#import <ReactiveCocoa/ReactiveCocoa.h>
+#import <Masonry/Masonry.h>
+
+
+#import "DDLog.h"
+#ifdef DEBUG
+static const int ddLogLevel = DDLogLevelVerbose;
+#else
+static const int ddLogLevel = DDLogLevelError;
+#endif
+
+
+#endif /* PrefixHeader_pch */

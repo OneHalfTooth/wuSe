@@ -1,0 +1,6 @@
+framework module Pods_WuSeFangTests {
+  umbrella header "Pods-WuSeFangTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
