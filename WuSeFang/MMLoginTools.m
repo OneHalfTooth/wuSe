@@ -7,6 +7,8 @@
 //
 
 #import "MMLoginTools.h"
+#import "WuSeTools.h"
+#import "NSString+MD5.h"
 
 
 @implementation MMLoginTools
@@ -69,7 +71,30 @@
     return image;
 }
 /** 登录按钮被点击 */
-+ (NSInteger)loginDidClickUserName:(NSString *)userName PassWord:(NSString *)passWord{
-    return 0;
++ (RACSignal *)loginDidClickUserName:(NSString *)userName PassWord:(NSString *)passWord{
+    
+    NSMutableDictionary * dic = [[NSMutableDictionary alloc]init];
+    [dic setObject:[WuSeTools getDeviceId] forKey:@"imei"];
+    [dic setObject:userName forKey:@"mobile"];
+    [dic setObject:[NSString md5:passWord] forKey:@"password"];
+    [dic setObject:@(2.4) forKey:@"ver"];
+
+   
+    
+    RACSignal * signal = [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+        AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+        manager.requestSerializer.timeoutInterval = 10.f;
+        [manager POST:LOGIN_URL parameters:dic progress:^(NSProgress * _Nonnull uploadProgress) {
+            
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            [subscriber sendNext:responseObject];
+            NSLog(@"%@",responseObject);
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            [subscriber sendNext:error];
+        }];
+        return [RACDisposable disposableWithBlock:^{
+        }];
+    }];
+    return signal;
 }
 @end

@@ -11,6 +11,7 @@
 #import "MMLoginTools.h"
 #import <AVFoundation/AVFoundation.h>
 #import "MMLoginViewController.h"
+#import "MMRegistViewController.h"
 
 
 
@@ -87,6 +88,10 @@
         make.width.equalTo(@250);
         make.centerX.equalTo(self.view.mas_centerX);
         make.top.equalTo(self.loginButton.mas_bottom).with.offset(20);
+    }];
+    [[self.registButton rac_signalForControlEvents:UIControlEventTouchUpInside]subscribeNext:^(id x) {
+        MMRegistViewController * registVc = [[MMRegistViewController alloc]init];
+        [self.navigationController pushViewController:registVc animated:YES];
     }];
 }
 - (void)createBackVideo{

@@ -28,6 +28,6 @@
 /** 根据颜色大小生成一个图片 */
 + (UIImage *)createImageByColor:(UIColor *)color Size:(CGSize)size;
 /** 登录按钮被点击 */
-+ (NSInteger)loginDidClickUserName:(NSString *)userName PassWord:(NSString *)passWord;
++ (RACSignal *)loginDidClickUserName:(NSString *)userName PassWord:(NSString *)passWord;
 
 @end

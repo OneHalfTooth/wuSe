@@ -18,6 +18,7 @@ target 'WuSeFang' do
   pod 'SVProgressHUD'
   pod 'GPUImage'
   pod 'CocoaAsyncSocket'
+#pod 'MD5', '~> 0.2.0'
   # Pods for WuSeFang
 
   target 'WuSeFangTests' do

@@ -8,6 +8,7 @@
 
 #import "MMLoginViewController.h"
 #import "MMLoginTools.h"
+#import "MMHomeViewController.h"
 
 
 
@@ -17,6 +18,7 @@
     UITextField * _passWordTextFiled;
     UIButton * _loginButton;
 }
+@property (nonatomic,retain)RACSignal * singlLogin;
 
 @end
 
@@ -36,7 +38,34 @@
     [self createBackButton];
     /** 创建忘记密码，注册按钮 */
     [self createRegistButtonAndLostButton];
+    [self createAction];
 }
+- (void)createAction{
+    [RACObserve(_loginButton, enabled) subscribeNext:^(id x) {
+        BOOL enable = [x boolValue];
+        if (enable) {
+            _loginButton.backgroundColor = [UIColor redColor];
+        }else{
+            _loginButton.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1];
+        }
+    }];
+    RAC(_loginButton,enabled) = [RACSignal combineLatest:@[_userNameTextField.rac_textSignal,_passWordTextFiled.rac_textSignal] reduce:^id{
+        return @(_userNameTextField.text.length == 11 && _passWordTextFiled.text.length >= 6);
+    }];
+    __weak typeof(self)weakself = self;
+    [[_loginButton rac_signalForControlEvents:UIControlEventTouchUpInside]subscribeNext:^(id x) {
+         [[MMLoginTools loginDidClickUserName:_userNameTextField.text PassWord:_passWordTextFiled.text] subscribeNext:^(id x) {
+             [weakself loginFromServiceGetData:x];
+         }];
+    }];
+    [_userNameTextField.rac_textSignal subscribeNext:^(id x) {
+        if (_userNameTextField.text.length >= 11) {
+            [_passWordTextFiled becomeFirstResponder];
+        }
+    }];
+
+}
+/** 创建注册按钮和忘记密码按钮 */
 - (void)createRegistButtonAndLostButton{
     UIButton * registButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [registButton setTitle:@"注册" forState:UIControlStateNormal];
@@ -91,20 +120,6 @@
     loginButton.layer.masksToBounds = YES;
     loginButton.layer.cornerRadius = 5.f;
     loginButton.enabled = NO;
-    [RACObserve(loginButton, enabled) subscribeNext:^(id x) {
-        BOOL enable = [x boolValue];
-        if (enable) {
-            loginButton.backgroundColor = [UIColor redColor];
-        }else{
-            loginButton.backgroundColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1];
-        }
-    }];
-    RAC(loginButton,enabled) = [RACSignal combineLatest:@[_userNameTextField.rac_textSignal,_passWordTextFiled.rac_textSignal] reduce:^id{
-        return @(_userNameTextField.text.length == 11 && _passWordTextFiled.text.length > 0);
-    }];
-    [[loginButton rac_signalForControlEvents:UIControlEventTouchUpInside]subscribeNext:^(id x) {
-        
-    }];
     _loginButton = loginButton;
 }
 - (void)createPassWordTextFiled{
@@ -131,7 +146,7 @@
     _userNameTextField = [self createTextFieldFactoryByTitle:@"手机号"];
     [self.view addSubview:_userNameTextField];
     [_userNameTextField mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(_imageView.mas_bottom).with.offset(100);
+        make.top.equalTo(_imageView.mas_bottom).with.offset(60);
         make.right.equalTo(self.view.mas_right).with.offset(-30);
         make.left.equalTo(self.view.mas_left).with.offset(30);
         make.height.equalTo(@30);
@@ -180,6 +195,16 @@
     textField.tintColor = [UIColor whiteColor];
     [textField setValue:[UIColor whiteColor] forKeyPath:@"_placeholderLabel.textColor"];
     return  textField;
+}
+- (void)loginFromServiceGetData:(id)data{
+    NSDictionary * dic = (NSDictionary *)data;
+    NSInteger status = [[dic objectForKey:@"stat"]integerValue];
+    if (status == 0) {
+        MMHomeViewController * homeVC = [[MMHomeViewController alloc]init];
+        [self.navigationController pushViewController:homeVC animated:YES];
+    }else{
+        [SVProgressHUD showErrorWithStatus:[dic objectForKey:@"message"] maskType:SVProgressHUDMaskTypeClear];
+    }
 }
 
 @end
